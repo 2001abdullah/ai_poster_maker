@@ -8,11 +8,12 @@ type BlueprintService = { name: string; runtime: string; plan: string; initialDe
 const blueprintPath = resolve(process.cwd(), "../../render.yaml");
 
 describe("Render Blueprint", () => {
-  it("defines a free API service with template seeding", () => {
+  it("defines a free API service without a one-time seed hook", () => {
     const blueprint = parse(readFileSync(blueprintPath, "utf8")) as { services: BlueprintService[] };
     expect(blueprint.services).toHaveLength(1);
     const api = blueprint.services.find((service) => service.name === "poster-api");
-    expect(api).toMatchObject({ runtime: "docker", plan: "free", initialDeployHook: "npm run seed --workspace @poster/api" });
+    expect(api).toMatchObject({ runtime: "docker", plan: "free" });
+    expect(api?.initialDeployHook).toBeUndefined();
     expect(api?.envVars).toContainEqual({ key: "WEB_ORIGIN", sync: false });
   });
 });

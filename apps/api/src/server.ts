@@ -2,11 +2,14 @@ import { createApp } from "./app";
 import { connectDatabase } from "./config/database";
 import { parseEnv } from "./config/env";
 import { suggestDesign } from "./services/design-suggestion";
+import { defaultTemplates, ensureDefaultTemplates } from "./services/seed-templates";
 import { AssetStorage } from "./services/storage";
 
 async function start() {
   const env = parseEnv();
   await connectDatabase(env.MONGODB_URI);
+  await ensureDefaultTemplates();
+  console.info(`Ensured ${defaultTemplates.length} templates`);
   const storage = new AssetStorage(env.STORAGE_DRIVER, {
     cloudName: env.CLOUDINARY_CLOUD_NAME ?? "",
     apiKey: env.CLOUDINARY_API_KEY ?? "",

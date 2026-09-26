@@ -34,6 +34,7 @@ export default function Home() {
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
   const [authBusy, setAuthBusy] = useState(false);
+  const [authError, setAuthError] = useState("");
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyAction, setHistoryAction] = useState("");
@@ -62,7 +63,7 @@ export default function Home() {
   async function submitAuth(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setAuthBusy(true);
-    setNotice("");
+    setAuthError("");
     try {
       const response = await fetch(`${apiUrl}/auth/${authMode === "register" ? "register" : "login"}`, {
         method: "POST",
@@ -75,9 +76,10 @@ export default function Home() {
       setAccount(payload.user as Account);
       setAuthOpen(false);
       setAuthPassword("");
+      setAuthError("");
       setNotice(`Signed in as ${payload.user.name}.`);
     } catch (error) {
-      setNotice(error instanceof Error ? error.message : "Account service is unavailable.");
+      setAuthError(error instanceof Error ? error.message : "Account service is unavailable.");
     } finally {
       setAuthBusy(false);
     }
@@ -296,7 +298,7 @@ export default function Home() {
         <footer className="page-footer"><span>Designed for Bangladesh.</span><span><span className="footer-dot" /> Your text stays yours</span></footer>
       </div>
     </section>
-    {authOpen && <div className="modal-backdrop" onClick={(event) => { if (event.target === event.currentTarget) setAuthOpen(false); }}><section className="account-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title"><button className="modal-close" type="button" aria-label="Close" onClick={() => setAuthOpen(false)}><X size={17} /></button><span className="modal-kicker">POSTER PRESS ACCOUNT</span><h2 id="auth-title">{authMode === "register" ? "Create your account" : "Welcome back"}</h2><p>Keep your posters together and download them again anytime.</p><form onSubmit={submitAuth}>{authMode === "register" && <label className="field"><span>Name</span><input required minLength={2} maxLength={80} value={authName} onChange={(event) => setAuthName(event.target.value)} autoComplete="name" /></label>}<label className="field"><span>Email</span><input required type="email" maxLength={254} value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} autoComplete="email" /></label><label className="field"><span>Password <small>{authMode === "register" ? "At least 10 characters" : ""}</small></span><input required type="password" minLength={authMode === "register" ? 10 : 1} maxLength={128} value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} autoComplete={authMode === "register" ? "new-password" : "current-password"} /></label><button className="generate-button modal-submit" type="submit" disabled={authBusy}>{authBusy ? "Please wait..." : authMode === "register" ? "Create account" : "Sign in"}<ArrowRight size={15} /></button></form><button className="modal-switch" type="button" onClick={() => setAuthMode(authMode === "register" ? "login" : "register")}>{authMode === "register" ? "Already registered? Sign in" : "New here? Create an account"}</button></section></div>}
+    {authOpen && <div className="modal-backdrop" onClick={(event) => { if (event.target === event.currentTarget) { setAuthOpen(false); setAuthError(""); } }}><section className="account-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title"><button className="modal-close" type="button" aria-label="Close" onClick={() => { setAuthOpen(false); setAuthError(""); }}><X size={17} /></button><span className="modal-kicker">POSTER PRESS ACCOUNT</span><h2 id="auth-title">{authMode === "register" ? "Create your account" : "Welcome back"}</h2><p>Keep your posters together and download them again anytime.</p>{authError && <div className="notice auth-notice" role="alert">{authError}</div>}<form onSubmit={submitAuth}>{authMode === "register" && <label className="field"><span>Name</span><input required minLength={2} maxLength={80} value={authName} onChange={(event) => setAuthName(event.target.value)} autoComplete="name" /></label>}<label className="field"><span>Email</span><input required type="email" maxLength={254} value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} autoComplete="email" /></label><label className="field"><span>Password <small>{authMode === "register" ? "At least 10 characters" : ""}</small></span><input required type="password" minLength={authMode === "register" ? 10 : 1} maxLength={128} value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} autoComplete={authMode === "register" ? "new-password" : "current-password"} /></label><button className="generate-button modal-submit" type="submit" disabled={authBusy}>{authBusy ? "Please wait..." : authMode === "register" ? "Create account" : "Sign in"}<ArrowRight size={15} /></button></form><button className="modal-switch" type="button" onClick={() => { setAuthMode(authMode === "register" ? "login" : "register"); setAuthError(""); }}>{authMode === "register" ? "Already registered? Sign in" : "New here? Create an account"}</button></section></div>}
     {historyOpen && <div className="modal-backdrop" onClick={(event) => { if (event.target === event.currentTarget) setHistoryOpen(false); }}><section className="account-modal history-modal" role="dialog" aria-modal="true" aria-labelledby="history-title"><button className="modal-close" type="button" aria-label="Close" onClick={() => setHistoryOpen(false)}><X size={17} /></button><span className="modal-kicker">YOUR WORKSPACE</span><h2 id="history-title">Poster history</h2><div className="history-list">{history.length ? history.map((item) => <div className="history-item" key={item._id}><span className="history-icon"><FileImage size={16} /></span><span><strong>{item.formData.headline}</strong><small>{item.formData.name} · {new Date(item.createdAt).toLocaleDateString()}</small></span><button className="history-action" type="button" disabled={historyAction === item._id || !item.generatedImageUrl} onClick={() => item.generatedImageUrl && void downloadAsset(item.generatedImageUrl, "poster-maker.png")} aria-label={`Download ${item.formData.headline}`} title="Download"><ArrowDownToLine size={15} /></button><button className="history-action" type="button" disabled={historyAction === item._id || item.retryCount >= 2 || item.status !== "completed"} onClick={() => void regenerateHistory(item)} aria-label={`Regenerate ${item.formData.headline}`} title="Regenerate"><RefreshCw size={15} /></button><button className="history-action danger" type="button" disabled={historyAction === item._id} onClick={() => void deleteHistory(item)} aria-label={`Delete ${item.formData.headline}`} title="Delete"><Trash2 size={15} /></button></div>) : <p className="empty-history">No saved posters yet.</p>}</div></section></div>}
   </main>;
 }

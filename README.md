@@ -41,7 +41,7 @@ CI runs lint, typecheck, tests, and production builds on Node 22. API tests do n
 
 ## Deployment
 
-This repository includes a free testing Blueprint in `render.yaml`. In Render, choose **New + → Blueprint** and connect the repository. It creates only the API service on Render's free plan; deploy the Next.js frontend separately on Vercel. Free Render services sleep when idle, so the first request after inactivity can be slow. When prompted, set `WEB_ORIGIN` to the exact Vercel production URL and provide a MongoDB Atlas connection string and Cloudinary credentials. Render generates `JWT_SECRET`. The API service's initial deploy hook seeds the starter templates after the first successful deploy. Gemini is optional.
+This repository includes a free testing Blueprint in `render.yaml`. In Render, choose **New + → Blueprint** and connect the repository. It creates only the API service on Render's free plan; deploy the Next.js frontend separately on Vercel. Free Render services sleep when idle, so the first request after inactivity can be slow. When prompted, set `WEB_ORIGIN` to the exact Vercel production URL and provide a MongoDB Atlas connection string and Cloudinary credentials. Render generates `JWT_SECRET`. The API idempotently ensures the starter templates exist whenever it starts. Gemini is optional.
 
 In Vercel, set `NEXT_PUBLIC_API_URL=/api/v1` and `API_ORIGIN=https://poster-api.onrender.com` (or the actual Render API hostname). The Next.js rewrite keeps browser API calls on the frontend origin so secure session cookies continue to work.
 

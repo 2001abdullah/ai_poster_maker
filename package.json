@@ -1,0 +1,19 @@
+{
+  "name": "ai-political-poster-maker",
+  "version": "1.0.0",
+  "private": true,
+  "engines": { "node": ">=20.11.0" },
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "concurrently -k -n web,api \"npm:dev --workspace @poster/web\" \"npm:dev --workspace @poster/api\"",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm test --workspaces --if-present",
+    "seed": "npm run seed --workspace @poster/api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "yaml": "^2.8.1"
+  }
+}

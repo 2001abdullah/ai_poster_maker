@@ -2,7 +2,7 @@ services:
   - type: web
     name: poster-api
     runtime: docker
-    plan: 0.5c-512mb
+    plan: free
     dockerfilePath: ./Dockerfile.api
     dockerContext: .
     healthCheckPath: /health
@@ -11,7 +11,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: WEB_ORIGIN
-        value: https://poster-press.onrender.com
+        sync: false
       - key: MONGODB_URI
         sync: false
       - key: JWT_SECRET
@@ -30,20 +30,3 @@ services:
         sync: false
       - key: GEMINI_MODEL
         value: gemini-2.5-flash
-
-  - type: web
-    name: poster-press
-    runtime: node
-    plan: 0.5c-512mb
-    buildCommand: npm ci && npm run build --workspace @poster/web
-    startCommand: npm run start --workspace @poster/web
-    healthCheckPath: /
-    envVars:
-      - key: NODE_VERSION
-        value: 22.16.0
-      - key: NODE_ENV
-        value: production
-      - key: NEXT_PUBLIC_API_URL
-        value: /api/v1
-      - key: API_ORIGIN
-        value: https://poster-api.onrender.com
